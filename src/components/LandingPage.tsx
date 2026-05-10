@@ -1,0 +1,7 @@
+export default function LandingPage() {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <h1 className="text-4xl font-bold">Full Landing Page Coming Next</h1>
+    </div>
+  );
+}
