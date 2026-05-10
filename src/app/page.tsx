@@ -5,26 +5,42 @@ import IntroLoader from "@/components/IntroLoader";
 import LandingPage from "@/components/LandingPage";
 
 export default function Home() {
-  const [loading, setLoading] = useState(() => {
-    // On the server, sessionStorage does not exist.
-    if (typeof window === "undefined") return true;
-
-    // If intro was already shown, skip loader.
-    return !sessionStorage.getItem("seenIntro");
-  });
+  // null = initial state while deciding what to render
+  // true = show intro loader
+  // false = show landing page
+  const [showIntro, setShowIntro] = useState<boolean | null>(null);
 
   useEffect(() => {
-    if (!loading) return;
+    const hasSeenIntro = sessionStorage.getItem("seenIntro");
 
-    const timer = setTimeout(() => {
+    // If intro was already shown, skip it
+    if (hasSeenIntro) {
+      const timer = setTimeout(() => {
+        setShowIntro(false);
+      }, 0);
+
+      return () => clearTimeout(timer);
+    }
+
+    // Show intro loader
+    const startTimer = setTimeout(() => {
+      setShowIntro(true);
+    }, 0);
+
+    // Hide intro after 2.5 seconds
+    const endTimer = setTimeout(() => {
       sessionStorage.setItem("seenIntro", "true");
-      setLoading(false);
+      setShowIntro(false);
     }, 2500);
 
-    return () => clearTimeout(timer);
-  }, [loading]);
+    return () => {
+      clearTimeout(startTimer);
+      clearTimeout(endTimer);
+    };
+  }, []);
 
-  if (loading) {
+  // During the initial render, show IntroLoader to avoid hydration mismatch.
+  if (showIntro === null || showIntro) {
     return <IntroLoader />;
   }
 
