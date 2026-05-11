@@ -31,5 +31,8 @@ export const spendFormSchema = z.object({
     .min(1, "Add at least one AI tool"),
 });
 
-export type ToolInput = z.infer<typeof toolSchema>;
-export type SpendFormInput = z.infer<typeof spendFormSchema>;
+export type SpendFormInput = z.input<typeof spendFormSchema>;
+export type SpendFormOutput = z.output<typeof spendFormSchema>;
+
+export type ToolInput = z.input<typeof toolSchema>;
+export type ToolOutput = z.output<typeof toolSchema>;

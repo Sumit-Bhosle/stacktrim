@@ -2,7 +2,8 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, useFieldArray, useWatch } from "react-hook-form";
+import {
+  useForm, useFieldArray, useWatch, type SubmitHandler,} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
@@ -56,10 +57,10 @@ export function SpendForm() {
   }, [watchedValues]);
 
   // Submit handler
-  function onSubmit(data: SpendFormInput) {
+  const onSubmit: SubmitHandler<SpendFormInput> = (data) => {
     saveFormData(data);
     router.push("/audit");
-  }
+  };
 
   return (
     <form
