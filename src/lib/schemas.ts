@@ -33,6 +33,7 @@ export const spendFormSchema = z.object({
 
 export type SpendFormInput = z.input<typeof spendFormSchema>;
 export type SpendFormOutput = z.output<typeof spendFormSchema>;
+export type SpendFormValues = z.infer<typeof spendFormSchema>;
 
 export type ToolInput = z.input<typeof toolSchema>;
 export type ToolOutput = z.output<typeof toolSchema>;

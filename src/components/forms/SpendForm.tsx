@@ -13,6 +13,7 @@ import {
 
 import { USE_CASES } from "@/lib/toolData";
 import { loadFormData, saveFormData } from "@/lib/storage";
+import { runAudit } from "@/lib/audit/engine";
 
 import { ToolCard } from "./ToolCard";
 
@@ -57,8 +58,31 @@ export function SpendForm() {
   }, [watchedValues]);
 
   // Submit handler
+
+
+//   const onSubmit: SubmitHandler<SpendFormInput> = (data) => {
+//   saveFormData(data);
+//   router.push("/audit");
+// };
+
   const onSubmit: SubmitHandler<SpendFormInput> = (data) => {
     saveFormData(data);
+
+    // Parse numbers to ensure correct types for runAudit
+    const parsedData = {
+      ...data,
+      teamSize: Number(data.teamSize),
+      tools: data.tools.map(tool => ({
+        ...tool,
+        monthlySpend: Number(tool.monthlySpend),
+        seats: Number(tool.seats),
+      })),
+    };
+
+    const result = runAudit(parsedData);
+
+    console.log("AUDIT RESULT:", result);
+
     router.push("/audit");
   };
 
