@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import IntroLoader from "@/components/IntroLoader";
 import LandingPage from "@/components/LandingPage";
 
+
 export default function Home() {
   // null = initial state while deciding what to render
   // true = show intro loader
