@@ -86,25 +86,21 @@ export function LeadCaptureForm({
   if (success) {
     return (
       <div className="rounded-xl border bg-white p-6 text-center shadow-sm">
-        <h3 className="text-xl font-semibold">
-          Audit sent successfully
-        </h3>
+        <h3 className="text-xl font-semibold">Audit sent successfully</h3>
 
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="text-muted-foreground mt-2 text-sm">
           Check your inbox for your personalized audit summary.
         </p>
 
         {shareUrl && (
           <div className="mt-6 space-y-3">
-            <p className="text-sm font-medium">
-              Share this audit:
-            </p>
+            <p className="text-sm font-medium">Share this audit:</p>
 
             <a
               href={shareUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="block break-all text-sm text-emerald-600 underline"
+              className="block text-sm break-all text-emerald-600 underline"
             >
               {shareUrl}
             </a>
@@ -112,7 +108,7 @@ export function LeadCaptureForm({
             <button
               type="button"
               onClick={handleCopyLink}
-              className="rounded-md border px-4 py-2 text-sm hover:bg-muted"
+              className="hover:bg-muted rounded-md border px-4 py-2 text-sm"
             >
               Copy Share Link
             </button>
@@ -127,52 +123,72 @@ export function LeadCaptureForm({
       onSubmit={handleSubmit}
       className="space-y-4 rounded-xl border bg-white p-6 shadow-sm"
     >
-      <h3 className="text-xl font-semibold">
-        Get your audit by email
-      </h3>
+      <h3 className="text-xl font-semibold">Get your audit by email</h3>
 
-      <p className="text-sm text-muted-foreground">
+      <p className="text-muted-foreground text-sm">
         Save your report and receive future optimization updates.
       </p>
 
-      <input
-        type="email"
-        placeholder="you@company.com"
-        required
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="w-full rounded-md border px-3 py-2"
-      />
+      {/* Email */}
+      <div className="space-y-2">
+        <label htmlFor="email" className="text-sm font-medium">
+          Work Email
+        </label>
+        <input
+          id="email"
+          type="email"
+          placeholder="you@company.com"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full rounded-md border px-3 py-2"
+        />
+      </div>
 
-      <input
-        type="text"
-        placeholder="Company name (optional)"
-        value={companyName}
-        onChange={(e) => setCompanyName(e.target.value)}
-        className="w-full rounded-md border px-3 py-2"
-      />
+      {/* Company Name */}
+      <div className="space-y-2">
+        <label htmlFor="companyName" className="text-sm font-medium">
+          Company Name <span className="text-muted-foreground">(optional)</span>
+        </label>
+        <input
+          id="companyName"
+          type="text"
+          placeholder="Acme Inc."
+          value={companyName}
+          onChange={(e) => setCompanyName(e.target.value)}
+          className="w-full rounded-md border px-3 py-2"
+        />
+      </div>
 
-      <input
-        type="text"
-        placeholder="Role (optional)"
-        value={role}
-        onChange={(e) => setRole(e.target.value)}
-        className="w-full rounded-md border px-3 py-2"
-      />
+      {/* Role */}
+      <div className="space-y-2">
+        <label htmlFor="role" className="text-sm font-medium">
+          Role <span className="text-muted-foreground">(optional)</span>
+        </label>
+        <input
+          id="role"
+          type="text"
+          placeholder="Founder"
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+          className="w-full rounded-md border px-3 py-2"
+        />
+      </div>
 
       {/* Honeypot field */}
       <input
-        title="HoneyPot field"
         type="text"
+        name="website"
         value={website}
         onChange={(e) => setWebsite(e.target.value)}
         className="hidden"
         tabIndex={-1}
         autoComplete="off"
+        aria-hidden="true"
       />
 
       {error && (
-        <p className="text-sm text-red-500">
+        <p role="alert" className="text-sm text-red-600">
           {error}
         </p>
       )}
