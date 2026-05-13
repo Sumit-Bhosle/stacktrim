@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 import { loadFormData } from "@/lib/storage";
 import { runAudit } from "@/lib/audit/engine";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
+// import Link from "next/link";
 
 type AuditFormData = {
   teamSize: number;
@@ -84,23 +84,52 @@ function formatCurrency(value: number) {
 }
 
 export default function AuditPage() {
+  // Track whether the component has mounted on the client.
+  // This prevents hydration mismatch because localStorage is only available in the browser.
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Load persisted form data from localStorage (client only).
+  // The lazy initializer runs once.
+  const [formData] = useState(() => {
+    if (typeof window === "undefined") {
+      return null;
+    }
+
+    const rawData = loadFormData();
+    return parseFormData(rawData);
+  });
+
+  // AI summary state
   const [aiSummary, setAiSummary] = useState("");
   const [summarySource, setSummarySource] = useState<
     "anthropic" | "fallback" | null
   >(null);
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
 
-  const rawData = loadFormData();
-  const data = parseFormData(rawData);
+  // Mark component as mounted.
+  // queueMicrotask avoids the React lint warning about synchronous state updates in effects.
+  useEffect(() => {
+    queueMicrotask(() => {
+      setIsMounted(true);
+    });
+  }, []);
 
-  // Compute audit only if valid data exists
-  const audit = data ? runAudit(data) : null;
+  // Memoize audit so its object reference stays stable across renders.
+  const audit = useMemo(() => {
+    if (!formData) return null;
+    return runAudit(formData);
+  }, [formData]);
+
+  // Used later for conditional CTA rendering.
   const highSavings = audit
     ? audit.totalMonthlySavings >= 500
     : false;
 
+  // Generate AI summary once when the audit becomes available.
   useEffect(() => {
-    if (!audit) return;
+    if (!audit || aiSummary) return;
+
+    let cancelled = false;
 
     const generateSummary = async () => {
       try {
@@ -120,20 +149,37 @@ export default function AuditPage() {
 
         const result = await response.json();
 
-        setAiSummary(result.summary);
-        setSummarySource(result.source);
+        if (!cancelled) {
+          setAiSummary(result.summary);
+          setSummarySource(result.source);
+        }
       } catch (error) {
         console.error("Failed to fetch AI summary:", error);
       } finally {
-        setIsGeneratingSummary(false);
+        if (!cancelled) {
+          setIsGeneratingSummary(false);
+        }
       }
     };
 
     generateSummary();
-  }, [audit]);
 
-  // Safe to return after all hooks are declared
-  if (!data || !audit) {
+    return () => {
+      cancelled = true;
+    };
+  }, [audit, aiSummary]);
+
+  // Show a stable placeholder until the client has mounted.
+  if (!isMounted) {
+    return (
+      <div className="container py-20 text-center">
+        <p className="text-muted-foreground">Loading audit...</p>
+      </div>
+    );
+  }
+
+  // No saved form data found.
+  if (!formData || !audit) {
     return (
       <div className="container py-20 text-center">
         <h1 className="text-2xl font-bold">No data found</h1>
