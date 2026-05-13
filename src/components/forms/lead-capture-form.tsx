@@ -6,12 +6,16 @@ type Props = {
   auditId: string;
   monthlySavings: number;
   annualSavings: number;
+  summary: string;
+  results: unknown;
 };
 
 export function LeadCaptureForm({
   auditId,
   monthlySavings,
   annualSavings,
+  summary,
+  results,
 }: Props) {
   const [email, setEmail] = useState("");
   const [companyName, setCompanyName] = useState("");
@@ -34,7 +38,7 @@ export function LeadCaptureForm({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
+          body: JSON.stringify({
           email,
           companyName,
           role,
@@ -42,6 +46,8 @@ export function LeadCaptureForm({
           monthlySavings,
           annualSavings,
           website,
+          summary,
+          auditData: results,
         }),
       });
 

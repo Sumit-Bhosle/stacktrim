@@ -337,6 +337,8 @@ export default function AuditPage() {
           auditId={crypto.randomUUID()}
           monthlySavings={audit.totalMonthlySavings}
           annualSavings={audit.totalAnnualSavings}
+          summary={aiSummary || audit.summary}
+          results={audit}
         />
       </div>
 
