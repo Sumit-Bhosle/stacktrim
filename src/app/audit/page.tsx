@@ -7,6 +7,7 @@ import { loadFormData } from "@/lib/storage";
 import { runAudit } from "@/lib/audit/engine";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { LeadCaptureForm } from "@/components/forms/lead-capture-form";
 // import Link from "next/link";
 
 type AuditFormData = {
@@ -329,6 +330,15 @@ export default function AuditPage() {
           ))}
         </div>
       </section>
+      
+      {/* Lead Capture Form */}
+      <div className="mt-12">
+        <LeadCaptureForm
+          auditId={crypto.randomUUID()}
+          monthlySavings={audit.totalMonthlySavings}
+          annualSavings={audit.totalAnnualSavings}
+        />
+      </div>
 
       {/* CTA */}
       <Card className="border-emerald-500/20 bg-emerald-500/5 backdrop-blur">
