@@ -52,24 +52,26 @@ export async function POST(req: NextRequest) {
     }
 
     // Send confirmation email
+    if (resend) {
     await resend.emails.send({
-      from: process.env["FROM_EMAIL"]!,
-      to: data.email,
-      subject: "Your StackTrim audit is ready",
-      html: `
+        from: process.env["FROM_EMAIL"]!,
+        to: data.email,
+        subject: "Your StackTrim audit is ready",
+        html: `
         <h2>Your AI Spend Audit Summary</h2>
         <p>
-          You identified potential savings of
-          <strong>$${data.monthlySavings}/month</strong>
-          ($${data.annualSavings}/year).
+            You identified potential savings of
+            <strong>$${data.monthlySavings}/month</strong>
+            ($${data.annualSavings}/year).
         </p>
         ${
-          isHighValue
+            isHighValue
             ? "<p>Our team may reach out with additional optimization opportunities.</p>"
             : "<p>We'll notify you when new optimization opportunities are available.</p>"
         }
-      `,
+        `,
     });
+    }
 
     return NextResponse.json({
       success: true,
