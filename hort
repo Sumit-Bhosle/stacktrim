@@ -1,0 +1,26 @@
+2026-05-13 | chore: remove build log file and update test script in package.json
+2026-05-13 | ci: add GitHub Actions workflow
+2026-05-13 | feat: finalize StackTrim for deployment
+2026-05-13 | fix: make Resend client optional during build
+2026-05-13 | feat: complete MVP and pass production build
+2026-05-13 | feat: add shareable audit URLs with Open Graph previews
+2026-05-13 | feat: implement lead capture with Supabase and Resend
+2026-05-13 | feat: add lead capture form component
+2026-05-13 | feat: add Supabase, Resend, and lead validation utilities
+2026-05-13 | fix: stabilize audit summary generation and fallback handling
+2026-05-13 | feat: integrate AI-generated audit summaries
+2026-05-13 | feat: add AI summary API route with fallback handling
+2026-05-13 | feat: add audit summary prompt builder
+2026-05-13 | feat: add fallback summary generator
+2026-05-13 | feat: add Anthropic client configuration
+2026-05-13 | chore: configure Anthropic API environment variables
+2026-05-11 | feat: improve audit results page UI
+2026-05-11 | feat: add pricing and recommendation rules
+2026-05-11 | feat: implement spend input form with validation and local storage persistence
+2026-05-11 | feat: implement spend input form with validation and persistence
+2026-05-10 | feat: finalize landing page with FAQ and social proof
+2026-05-10 | feat: build landing page with intro loader, navbar, and hero
+2026-05-10 | feat: add intro loader and landing page controller
+2026-05-10 | feat: configure supabase project and environment variables
+2026-05-08 | feat: initialize project foundation with nextjs, typescript, tailwind and shadcn
+2026-05-08 | Initial commit

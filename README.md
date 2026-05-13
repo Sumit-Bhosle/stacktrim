@@ -1,36 +1,163 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# README.md
 
-## Getting Started
+Copy the content below into your `README.md`.
 
-First, run the development server:
 
-```bash
+# StackTrim
+
+StackTrim is a free AI spend audit tool that helps startup founders and engineering managers identify overspending across tools like Cursor, ChatGPT, Claude, and GitHub Copilot. Users enter their current AI stack and receive an instant audit showing downgrade opportunities, lower-cost alternatives, and estimated monthly and annual savings.
+
+## Live Demo
+
+- Live App: https://stacktrim.vercel.app
+- Demo Video: Add your Loom or YouTube link here
+
+## Screenshots
+
+Add at least three screenshots:
+
+1. Landing page
+2. Audit results page
+3. Shareable public report
+
+Example:
+
+![Landing Page](./public/screenshots/landing-page.png)
+![Audit Results](./public/screenshots/audit-results.png)
+![Shareable Report](./public/screenshots/share-report.png)
+
+## Who This Is For
+
+StackTrim is designed for:
+
+- Seed to Series A startup founders
+- CTOs and engineering managers
+- Finance operators managing SaaS spend
+- Teams using multiple AI subscriptions and APIs
+
+## Core Features
+
+- Multi-tool AI spend input form
+- Rule-based audit engine with defensible recommendations
+- Personalized AI-generated executive summary
+- Lead capture with Supabase backend
+- Transactional confirmation email via Resend
+- Shareable public report URLs with Open Graph metadata
+- Form persistence across reloads
+- Basic abuse protection with honeypot field
+
+## Tech Stack
+
+- Next.js 16
+- TypeScript
+- Tailwind CSS
+- Supabase
+- Anthropic API
+- Resend
+- Vitest
+- GitHub Actions
+- Vercel
+
+## Quick Start
+
+
+git clone https://github.com/Sumit-Bhosle/stacktrim.git
+cd stacktrim
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create a `.env.local` file:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+ANTHROPIC_API_KEY=
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Open `http://localhost:3000`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deployment
 
-## Deploy on Vercel
+The application is deployed on Vercel.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+To deploy your own version:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Import the repository into Vercel.
+2. Add all required environment variables.
+3. Deploy.
+
+## Running Tests
+
+npm run test
+npm run lint
+npm run build
+
+
+## Decisions
+
+### 1. Rule-Based Audit Logic Instead of AI Calculations
+
+I used deterministic business rules for pricing recommendations and savings calculations to ensure consistent and explainable outputs.
+
+### 2. Anthropic Used Only for Narrative Summaries
+
+The LLM is used only to generate a concise executive summary, with a fallback template if the API call fails.
+
+### 3. Supabase for Backend Simplicity
+
+Supabase provided a fast and reliable Postgres-backed database with minimal setup overhead.
+
+### 4. Email Capture Happens After Value Is Delivered
+
+Users see the audit before entering their email, aligning with the assignment requirement and improving conversion.
+
+### 5. Shareable Public URLs Exclude Sensitive Data
+
+Public reports contain audit recommendations and savings figures, but strip identifying information such as company name and email address.
+
+## Accessibility and Performance
+
+The deployed application was tested using Lighthouse and optimized for responsive design, accessibility, and production performance.
+
+## CI/CD
+
+GitHub Actions automatically runs:
+
+* Lint checks
+* Automated tests
+* Production build
+
+on every push to `main`.
+
+## Repository Structure
+
+app/
+components/
+lib/
+tests/
+public/
+.github/workflows/ci.yml
+
+README.md
+ARCHITECTURE.md
+DEVLOG.md
+REFLECTION.md
+TESTS.md
+PRICING_DATA.md
+PROMPTS.md
+GTM.md
+ECONOMICS.md
+USER_INTERVIEWS.md
+LANDING_COPY.md
+METRICS.md
+
+
+## Author
+
+Sumit Bhosle
+
