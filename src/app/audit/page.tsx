@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { useEffect, useState } from "react";
+
 import { loadFormData } from "@/lib/storage";
 import { runAudit } from "@/lib/audit/engine";
 import { Card, CardContent } from "@/components/ui/card";
@@ -82,50 +84,87 @@ function formatCurrency(value: number) {
 }
 
 export default function AuditPage() {
-  const data = parseFormData(loadFormData());
+  const [aiSummary, setAiSummary] = useState("");
+  const [summarySource, setSummarySource] = useState<
+    "anthropic" | "fallback" | null
+  >(null);
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
 
-  if (!data) {
+  const rawData = loadFormData();
+  const data = parseFormData(rawData);
+
+  // Compute audit only if valid data exists
+  const audit = data ? runAudit(data) : null;
+  const highSavings = audit
+    ? audit.totalMonthlySavings >= 500
+    : false;
+
+  useEffect(() => {
+    if (!audit) return;
+
+    const generateSummary = async () => {
+      try {
+        setIsGeneratingSummary(true);
+
+        const response = await fetch("/api/generate-summary", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(audit),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to generate summary");
+        }
+
+        const result = await response.json();
+
+        setAiSummary(result.summary);
+        setSummarySource(result.source);
+      } catch (error) {
+        console.error("Failed to fetch AI summary:", error);
+      } finally {
+        setIsGeneratingSummary(false);
+      }
+    };
+
+    generateSummary();
+  }, [audit]);
+
+  // Safe to return after all hooks are declared
+  if (!data || !audit) {
     return (
-      <main className="container mx-auto max-w-4xl px-4 py-20">
-        <Card className="border-white/10 bg-white/5 backdrop-blur">
-          <CardContent className="p-8 text-center space-y-4">
-            <h1 className="text-2xl font-bold">No audit data found</h1>
-            <p className="text-muted-foreground">
-              Please return to the homepage and complete the spend form.
-            </p>
-            <Button asChild>
-              <Link href="/">Back to Homepage</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </main>
+      <div className="container py-20 text-center">
+        <h1 className="text-2xl font-bold">No data found</h1>
+        <p className="mt-2 text-muted-foreground">
+          Please complete the spend form first.
+        </p>
+      </div>
     );
   }
 
-  const audit = runAudit(data);
-  const highSavings = audit.totalMonthlySavings >= 500;
-
   return (
-    <main className="container mx-auto max-w-6xl px-4 py-16 space-y-10">
+    <main className="container mx-auto max-w-6xl space-y-10 px-4 py-16">
       {/* Hero */}
-      <section className="rounded-3xl border border-white/10 bg-linear-to-br from-emerald-500/10 via-white/5 to-cyan-500/10 p-8 md:p-12 backdrop-blur">
+      <section className="rounded-3xl border border-white/10 bg-linear-to-br from-emerald-500/10 via-white/5 to-cyan-500/10 p-8 backdrop-blur md:p-12">
         <div className="space-y-4 text-center">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-400">
+          <p className="text-sm font-semibold tracking-[0.2em] text-emerald-400 uppercase">
             Potential Savings Identified
           </p>
 
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
+          <h1 className="text-5xl font-bold tracking-tight md:text-7xl">
             {formatCurrency(audit.totalMonthlySavings)}
-            <span className="text-2xl md:text-4xl text-muted-foreground">
+            <span className="text-muted-foreground text-2xl md:text-4xl">
               /month
             </span>
           </h1>
 
-          <p className="text-lg text-muted-foreground">
+          <p className="text-muted-foreground text-lg">
             {formatCurrency(audit.totalAnnualSavings)} in annual savings
           </p>
 
-          <p className="mx-auto max-w-2xl text-sm md:text-base text-muted-foreground">
+          <p className="text-muted-foreground mx-auto max-w-2xl text-sm md:text-base">
             We analyzed your current AI stack and identified opportunities to
             reduce costs without sacrificing team productivity.
           </p>
@@ -136,7 +175,7 @@ export default function AuditPage() {
       <section className="grid gap-6 md:grid-cols-3">
         <Card className="border-white/10 bg-white/5 backdrop-blur">
           <CardContent className="p-6">
-            <p className="text-sm text-muted-foreground">Current Spend</p>
+            <p className="text-muted-foreground text-sm">Current Spend</p>
             <p className="mt-2 text-3xl font-bold">
               {formatCurrency(audit.totalCurrentSpend)}
             </p>
@@ -145,7 +184,7 @@ export default function AuditPage() {
 
         <Card className="border-white/10 bg-white/5 backdrop-blur">
           <CardContent className="p-6">
-            <p className="text-sm text-muted-foreground">Optimized Spend</p>
+            <p className="text-muted-foreground text-sm">Optimized Spend</p>
             <p className="mt-2 text-3xl font-bold">
               {formatCurrency(audit.totalRecommendedSpend)}
             </p>
@@ -154,7 +193,7 @@ export default function AuditPage() {
 
         <Card className="border-white/10 bg-white/5 backdrop-blur">
           <CardContent className="p-6">
-            <p className="text-sm text-muted-foreground">Tools Audited</p>
+            <p className="text-muted-foreground text-sm">Tools Audited</p>
             <p className="mt-2 text-3xl font-bold">
               {audit.toolResults.length}
             </p>
@@ -164,15 +203,18 @@ export default function AuditPage() {
 
       {/* Personalized Summary */}
       <Card className="border-white/10 bg-white/5 backdrop-blur">
-        <CardContent className="p-8 space-y-3">
+        <CardContent className="space-y-3 p-8">
           <h2 className="text-2xl font-semibold">Executive Summary</h2>
-          <p className="leading-7 text-muted-foreground">
-            {audit.totalMonthlySavings > 0
-              ? `Your team could save ${formatCurrency(
-                  audit.totalMonthlySavings
-                )} per month by moving to more cost-effective plans that better match your ${data.primaryUseCase} workflow.`
-              : `Your current AI tooling appears well optimized for your team size and use case. At the moment, there are no meaningful savings opportunities.`}
+          <p className="text-muted-foreground leading-7">
+            {isGeneratingSummary
+              ? "Generating personalized summary..."
+              : aiSummary || audit.summary}
           </p>
+          {summarySource && (
+            <p className="text-muted-foreground text-xs">
+              Summary generated via {summarySource}.
+            </p>
+          )}
         </CardContent>
       </Card>
 
@@ -180,7 +222,7 @@ export default function AuditPage() {
       <section className="space-y-6">
         <div>
           <h2 className="text-3xl font-bold">Per-Tool Recommendations</h2>
-          <p className="mt-2 text-muted-foreground">
+          <p className="text-muted-foreground mt-2">
             Specific recommendations for each tool in your AI stack.
           </p>
         </div>
@@ -191,17 +233,17 @@ export default function AuditPage() {
               key={tool.toolName}
               className="border-white/10 bg-white/5 backdrop-blur"
             >
-              <CardContent className="p-6 space-y-4">
+              <CardContent className="space-y-4 p-6">
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                   <div className="space-y-2">
                     <h3 className="text-xl font-semibold">{tool.toolName}</h3>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       {tool.recommendation}
                     </p>
                   </div>
 
                   <div className="text-left md:text-right">
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       Monthly Savings
                     </p>
                     <p className="text-2xl font-bold text-emerald-400">
@@ -210,7 +252,7 @@ export default function AuditPage() {
                   </div>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-3 text-sm">
+                <div className="grid gap-4 text-sm md:grid-cols-3">
                   <div>
                     <p className="text-muted-foreground">Current Spend</p>
                     <p className="font-semibold">
@@ -233,7 +275,7 @@ export default function AuditPage() {
                   </div>
                 </div>
 
-                <p className="text-sm leading-6 text-muted-foreground border-t border-white/10 pt-4">
+                <p className="text-muted-foreground border-t border-white/10 pt-4 text-sm leading-6">
                   {tool.reason}
                 </p>
               </CardContent>
@@ -244,14 +286,14 @@ export default function AuditPage() {
 
       {/* CTA */}
       <Card className="border-emerald-500/20 bg-emerald-500/5 backdrop-blur">
-        <CardContent className="p-8 text-center space-y-4">
+        <CardContent className="space-y-4 p-8 text-center">
           <h2 className="text-2xl font-bold">
             {highSavings
               ? "Unlock Even More Savings with Credex"
               : "Stay Updated on Future Optimization Opportunities"}
           </h2>
 
-          <p className="mx-auto max-w-2xl text-muted-foreground">
+          <p className="text-muted-foreground mx-auto max-w-2xl">
             {highSavings
               ? "Credex helps startups reduce AI infrastructure costs by sourcing discounted credits from leading vendors."
               : "We'll let you know when pricing changes create new opportunities to reduce your AI spend."}
